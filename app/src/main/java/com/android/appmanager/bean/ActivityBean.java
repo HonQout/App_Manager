@@ -5,6 +5,9 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 
+import com.android.appmanager.utils.ActivityUtils;
+import com.android.appmanager.utils.PackageUtils;
+
 public class ActivityBean {
     private final ActivityInfo activityInfo;
     private final String packageName;
@@ -40,4 +43,14 @@ public class ActivityBean {
     public String getLabel() {
         return label;
     }
+
+    public String getThemeName(Context context) {
+        return PackageUtils.getThemeName(context, packageName, activityInfo.getThemeResource());
+    }
+
+    public String getLocaleLaunchMode(Context context) {
+        return context.getString(ActivityUtils.getLocaleLaunchModeRes(activityInfo));
+    }
+
+
 }

@@ -25,15 +25,14 @@ public class ActivityRVAdapter extends FilterableListAdapter<ActivityBean, Activ
     public static final DiffUtil.ItemCallback<ActivityBean> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ActivityBean oldItem, @NonNull ActivityBean newItem) {
-            boolean isPackageNameTheSame = Objects.equals(oldItem.getPackageName(), newItem.getPackageName());
-            boolean isActivityNameTheSame = Objects.equals(oldItem.getActivityName(), newItem.getActivityName());
-            return isPackageNameTheSame && isActivityNameTheSame;
+            return Objects.equals(oldItem.getActivityInfo(), newItem.getActivityInfo());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ActivityBean oldItem, @NonNull ActivityBean newItem) {
-            boolean isActivityInfoTheSame = oldItem.getActivityInfo() == newItem.getActivityInfo();
-            return isActivityInfoTheSame;
+            boolean isPackageNameTheSame = Objects.equals(oldItem.getPackageName(), newItem.getPackageName());
+            boolean isActivityNameTheSame = Objects.equals(oldItem.getActivityName(), newItem.getActivityName());
+            return isPackageNameTheSame && isActivityNameTheSame;
         }
     };
 

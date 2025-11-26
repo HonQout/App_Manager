@@ -8,12 +8,38 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+
+import com.android.appmanager.R;
 
 public class ActivityUtils {
     private static final String TAG = "ActivityUtils";
 
+    public enum LaunchMode {
+        MULTIPLE, SINGLE_TOP, SINGLE_TASK, SINGLE_INSTANCE, SINGLE_INSTANCE_PER_TASK
+    }
+
     public enum LaunchActivityResult {
         SUCCESS, NOT_EXPORTED, REQUIRE_PERMISSION, NOT_FOUND
+    }
+
+    @StringRes
+    public static int getLocaleLaunchModeRes(ActivityInfo activityInfo) {
+        int launchMode = activityInfo.launchMode;
+        switch (launchMode) {
+            case ActivityInfo.LAUNCH_MULTIPLE:
+                return R.string.multiple;
+            case ActivityInfo.LAUNCH_SINGLE_TOP:
+                return R.string.single_top;
+            case ActivityInfo.LAUNCH_SINGLE_TASK:
+                return R.string.single_task;
+            case ActivityInfo.LAUNCH_SINGLE_INSTANCE:
+                return R.string.single_instance;
+            case ActivityInfo.LAUNCH_SINGLE_INSTANCE_PER_TASK:
+                return R.string.single_instance_per_task;
+            default:
+                return R.string.unknown;
+        }
     }
 
     public static LaunchActivityResult LaunchActivity(@NonNull Context context, @NonNull ActivityInfo activityInfo) {

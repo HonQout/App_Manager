@@ -117,13 +117,49 @@ public class PackageInfoFragment extends Fragment {
                 binding.fPackageInfoRv.setAdapter(activityRVAdapter);
                 break;
             case Service:
-                binding.fPackageInfoRv.setAdapter(new ServiceRVAdapter(new ArrayList<>()));
+                ServiceRVAdapter serviceRVAdapter = new ServiceRVAdapter(new ArrayList<>());
+                serviceRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+                    @Override
+                    public void onItemClick(ServiceBean item) {
+                        viewModel.showServiceDetailDialog(requireActivity(), item);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(ServiceBean item) {
+                        return false;
+                    }
+                });
+                binding.fPackageInfoRv.setAdapter(serviceRVAdapter);
                 break;
             case Provider:
-                binding.fPackageInfoRv.setAdapter(new ProviderRVAdapter(new ArrayList<>()));
+                ProviderRVAdapter providerRVAdapter = new ProviderRVAdapter(new ArrayList<>());
+                providerRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+                    @Override
+                    public void onItemClick(ProviderBean item) {
+                        viewModel.showProviderDetailDialog(requireActivity(), item);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(ProviderBean item) {
+                        return false;
+                    }
+                });
+                binding.fPackageInfoRv.setAdapter(providerRVAdapter);
                 break;
             case Receiver:
-                binding.fPackageInfoRv.setAdapter(new ReceiverRVAdapter(new ArrayList<>()));
+                ReceiverRVAdapter receiverRVAdapter = new ReceiverRVAdapter(new ArrayList<>());
+                receiverRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+                    @Override
+                    public void onItemClick(ReceiverBean item) {
+                        viewModel.showReceiverDetailDialog(requireActivity(), item);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(ReceiverBean item) {
+                        return false;
+                    }
+                });
+                binding.fPackageInfoRv.setAdapter(receiverRVAdapter);
                 break;
         }
         binding.fPackageInfoTv.setVisibility(isExpanded ? View.GONE : View.VISIBLE);

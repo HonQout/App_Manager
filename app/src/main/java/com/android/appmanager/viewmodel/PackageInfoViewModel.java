@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.appmanager.R;
 import com.android.appmanager.adapter.recyclerview.TCHListAdapter;
+import com.android.appmanager.adapter.recyclerview.TCVListAdapter;
 import com.android.appmanager.bean.ActivityBean;
 import com.android.appmanager.bean.PackageBean;
 import com.android.appmanager.bean.PermissionBean;
@@ -270,6 +271,8 @@ public class PackageInfoViewModel extends AndroidViewModel {
         List<TCItem> list = new ArrayList<>();
         list.add(new TCItem(context.getString(R.string.name), permissionBean.getName()));
         list.add(new TCItem(context.getString(R.string.label), permissionBean.getLabel()));
+        list.add(new TCItem(context.getString(R.string.permission_group), permissionBean.getGroup()));
+        list.add(new TCItem(context.getString(R.string.protection_level), String.valueOf(permissionBean.getProtectionLevel())));
         list.add(new TCItem(context.getString(R.string.description), permissionBean.getDescription()));
         return list;
     }
@@ -279,21 +282,70 @@ public class PackageInfoViewModel extends AndroidViewModel {
         List<TCItem> list = new ArrayList<>();
         list.add(new TCItem(context.getString(R.string.name), activityBean.getActivityName()));
         list.add(new TCItem(context.getString(R.string.label), activityBean.getLabel()));
+        list.add(new TCItem(context.getString(R.string.theme), activityBean.getThemeName(context)));
+        list.add(new TCItem(context.getString(R.string.launch_mode), activityBean.getLocaleLaunchMode(context)));
+        list.add(new TCItem(context.getString(R.string.max_recents), String.valueOf(activityBean.getActivityInfo().maxRecents)));
+        list.add(new TCItem(context.getString(R.string.permission), activityBean.getActivityInfo().permission));
+        list.add(new TCItem(context.getString(R.string.task_affinity), activityBean.getActivityInfo().taskAffinity));
+        list.add(new TCItem(context.getString(R.string.target_activity), activityBean.getActivityInfo().targetActivity));
+        list.add(new TCItem(context.getString(R.string.required_display_category), activityBean.getActivityInfo().requiredDisplayCategory));
+        list.add(new TCItem(context.getString(R.string.parent_activity_name), activityBean.getActivityInfo().parentActivityName));
         list.add(new TCItem(context.getString(R.string.enabled), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().isEnabled()))));
         list.add(new TCItem(context.getString(R.string.exported), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().exported))));
-        list.add(new TCItem(context.getString(R.string.permission), activityBean.getActivityInfo().permission));
+        return list;
+    }
+
+    public List<TCItem> getServiceDetailList(ServiceBean serviceBean) {
+        Context context = getApplication();
+        List<TCItem> list = new ArrayList<>();
+        list.add(new TCItem(context.getString(R.string.name), serviceBean.getName()));
+        list.add(new TCItem(context.getString(R.string.label), serviceBean.getLabel()));
+        list.add(new TCItem(context.getString(R.string.permission), serviceBean.getServiceInfo().permission));
+        list.add(new TCItem(context.getString(R.string.type), serviceBean.getLocaleForegroundServiceType(context)));
+        list.add(new TCItem(context.getString(R.string.stop_with_task), StringUtils.getLocaleJudgement(context, serviceBean.doesStopWithTask())));
+        list.add(new TCItem(context.getString(R.string.isolated_process), StringUtils.getLocaleJudgement(context, serviceBean.isIsolatedProcess())));
+        list.add(new TCItem(context.getString(R.string.external_service), StringUtils.getLocaleJudgement(context, serviceBean.isExternalService())));
+        list.add(new TCItem(context.getString(R.string.use_app_zygote), StringUtils.getLocaleJudgement(context, serviceBean.doesUseAppZygote())));
+        list.add(new TCItem(context.getString(R.string.allow_shared_isolated_process), StringUtils.getLocaleJudgement(context, serviceBean.doesAllowSharedIsolatedProcess())));
+        list.add(new TCItem(context.getString(R.string.single_user), StringUtils.getLocaleJudgement(context, serviceBean.isSingleUser())));
+        return list;
+    }
+
+    public List<TCItem> getProviderDetailList(ProviderBean providerBean) {
+        Context context = getApplication();
+        List<TCItem> list = new ArrayList<>();
+        list.add(new TCItem(context.getString(R.string.name), providerBean.getName()));
+        list.add(new TCItem(context.getString(R.string.label), providerBean.getLabel()));
+        list.add(new TCItem(context.getString(R.string.provider_authority), providerBean.getProviderInfo().authority));
+        list.add(new TCItem(context.getString(R.string.read_permission), providerBean.getProviderInfo().readPermission));
+        list.add(new TCItem(context.getString(R.string.write_permission), providerBean.getProviderInfo().writePermission));
+        list.add(new TCItem(context.getString(R.string.grant_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().grantUriPermissions)));
+        list.add(new TCItem(context.getString(R.string.force_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().forceUriPermissions)));
+        list.add(new TCItem(context.getString(R.string.multiprocess), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().multiprocess)));
+        list.add(new TCItem(context.getString(R.string.init_order), String.valueOf(providerBean.getProviderInfo().initOrder)));
+        return list;
+    }
+
+    public List<TCItem> getReceiverDetailList(ReceiverBean receiverBean) {
+        Context context = getApplication();
+        List<TCItem> list = new ArrayList<>();
+        list.add(new TCItem(context.getString(R.string.name), receiverBean.getName()));
+        list.add(new TCItem(context.getString(R.string.label), receiverBean.getLabel()));
+        list.add(new TCItem(context.getString(R.string.process_name), receiverBean.getReceiverInfo().processName));
+        list.add(new TCItem(context.getString(R.string.permission), receiverBean.getReceiverInfo().permission));
+        list.add(new TCItem(context.getString(R.string.enabled), StringUtils.getLocaleJudgement(context, receiverBean.getReceiverInfo().enabled)));
+        list.add(new TCItem(context.getString(R.string.exported), StringUtils.getLocaleJudgement(context, receiverBean.getReceiverInfo().exported)));
         return list;
     }
 
     public void showPermissionDetailDialog(@NonNull Activity activity, PermissionBean permissionBean) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCHListAdapter tchListAdapter = new TCHListAdapter(getPermissionDetailList(permissionBean));
-        recyclerView.setAdapter(tchListAdapter);
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getPermissionDetailList(permissionBean));
+        recyclerView.setAdapter(tcvListAdapter);
         new MaterialAlertDialogBuilder(activity)
-                .setTitle(permissionBean.getName())
+                .setTitle(R.string.detail)
                 .setView(view)
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(R.string.confirm, (dialog, which) -> dialog.dismiss())
                 .show();
     }
@@ -305,7 +357,7 @@ public class PackageInfoViewModel extends AndroidViewModel {
         recyclerView.setAdapter(tchListAdapter);
         new MaterialAlertDialogBuilder(activity)
                 .setIcon(activityBean.getIcon())
-                .setTitle(activityBean.getActivityName())
+                .setTitle(R.string.detail)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(R.string.launch, (dialog, which) -> {
@@ -325,6 +377,42 @@ public class PackageInfoViewModel extends AndroidViewModel {
                             break;
                     }
                 })
+                .show();
+    }
+
+    public void showServiceDetailDialog(@NonNull Activity activity, ServiceBean serviceBean) {
+        View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
+        RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getServiceDetailList(serviceBean));
+        recyclerView.setAdapter(tcvListAdapter);
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.detail)
+                .setView(view)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    public void showProviderDetailDialog(@NonNull Activity activity, ProviderBean providerBean) {
+        View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
+        RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getProviderDetailList(providerBean));
+        recyclerView.setAdapter(tcvListAdapter);
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.detail)
+                .setView(view)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    public void showReceiverDetailDialog(@NonNull Activity activity, ReceiverBean receiverBean) {
+        View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
+        RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getReceiverDetailList(receiverBean));
+        recyclerView.setAdapter(tcvListAdapter);
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.detail)
+                .setView(view)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 }

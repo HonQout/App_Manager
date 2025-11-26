@@ -5,19 +5,15 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 
 public class ReceiverBean {
-    private ActivityInfo receiverInfo;
-    private String label;
-    private String name;
+    private final ActivityInfo receiverInfo;
+    private final String label;
+    private final String name;
 
     public ReceiverBean(Context context, ActivityInfo receiverInfo) {
         this.receiverInfo = receiverInfo;
         PackageManager pm = context.getPackageManager();
         this.label = receiverInfo.loadLabel(pm).toString();
         this.name = receiverInfo.name;
-    }
-
-    public void setReceiverInfo(ActivityInfo receiverInfo) {
-        this.receiverInfo = receiverInfo;
     }
 
     public ActivityInfo getReceiverInfo() {

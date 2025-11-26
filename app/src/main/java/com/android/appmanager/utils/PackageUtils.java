@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
 
@@ -232,5 +233,28 @@ public class PackageUtils {
             }
         }
         ZipUtils.zipFile(toExtract, destDir, zipName, strategy);
+    }
+
+    public static String getThemeName(Context context, String packageName, int themeResId) {
+        if (themeResId == 0) {
+            return "";
+        }
+        PackageManager pm = context.getPackageManager();
+        Resources resources = null;
+        try {
+            resources = pm.getResourcesForApplication(packageName);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Failed to get resources of package " + packageName + ".", e);
+        }
+        if (resources != null) {
+            try {
+                return resources.getResourceEntryName(themeResId);
+            } catch (Resources.NotFoundException e) {
+                Log.e(TAG, "Failed to get resource entry name.", e);
+            }
+        } else {
+            Log.e(TAG, "Resources of package " + packageName + " is null.");
+        }
+        return "";
     }
 }

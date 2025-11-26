@@ -23,19 +23,18 @@ public class ReceiverRVAdapter extends FilterableListAdapter<ReceiverBean, Recei
     public static final DiffUtil.ItemCallback<ReceiverBean> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ReceiverBean oldItem, @NonNull ReceiverBean newItem) {
-            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
-            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
-            return isNameTheSame && isLabelTheSame;
+            return Objects.equals(oldItem.getReceiverInfo(), newItem.getReceiverInfo());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ReceiverBean oldItem, @NonNull ReceiverBean newItem) {
-            boolean isReceiverInfoTheSame = oldItem.getReceiverInfo() == newItem.getReceiverInfo();
-            return isReceiverInfoTheSame;
+            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
+            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
+            return isNameTheSame && isLabelTheSame;
         }
     };
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView title;
         private final TextView content;
 
@@ -43,6 +42,21 @@ public class ReceiverRVAdapter extends FilterableListAdapter<ReceiverBean, Recei
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.item_tc_v_title);
             content = (TextView) itemView.findViewById(R.id.item_tc_v_content);
+            itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                    ReceiverBean item = getItem(position);
+                    onItemClickListener.onItemClick(item);
+                }
+            });
+            itemView.setOnLongClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                    ReceiverBean item = getItem(position);
+                    return onItemClickListener.onItemLongClick(item);
+                }
+                return false;
+            });
         }
 
         public TextView getTitle() {

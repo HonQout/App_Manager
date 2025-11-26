@@ -166,7 +166,10 @@ public class PackageBean {
         }
         if (installerPackageName != null) {
             try {
-                installerPackageLabel = pm.getPackageInfo(installerPackageName, 0).applicationInfo.loadLabel(pm).toString();
+                ApplicationInfo applicationInfo = pm.getPackageInfo(installerPackageName, 0).applicationInfo;
+                if (applicationInfo != null) {
+                    installerPackageLabel = applicationInfo.loadLabel(pm).toString();
+                }
             } catch (PackageManager.NameNotFoundException e) {
                 Log.e(TAG, "Failed to get package info. Cannot find a package with the given packageName.", e);
             }

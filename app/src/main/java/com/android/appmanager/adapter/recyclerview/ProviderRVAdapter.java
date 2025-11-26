@@ -18,24 +18,23 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class ProviderRVAdapter extends FilterableListAdapter<ProviderBean, ProviderRVAdapter.ViewHolder> {
-    private static final String TAG = "ProviderAdapter";
+    private static final String TAG = "ProviderRVAdapter";
 
     public static final DiffUtil.ItemCallback<ProviderBean> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ProviderBean oldItem, @NonNull ProviderBean newItem) {
-            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
-            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
-            return isNameTheSame && isLabelTheSame;
+            return Objects.equals(oldItem.getProviderInfo(), newItem.getProviderInfo());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ProviderBean oldItem, @NonNull ProviderBean newItem) {
-            boolean isProviderInfoTheSame = oldItem.getProviderInfo() == newItem.getProviderInfo();
-            return isProviderInfoTheSame;
+            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
+            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
+            return isNameTheSame && isLabelTheSame;
         }
     };
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView title;
         private final TextView content;
 
@@ -43,6 +42,21 @@ public class ProviderRVAdapter extends FilterableListAdapter<ProviderBean, Provi
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.item_tc_v_title);
             content = (TextView) itemView.findViewById(R.id.item_tc_v_content);
+            itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                    ProviderBean item = getItem(position);
+                    onItemClickListener.onItemClick(item);
+                }
+            });
+            itemView.setOnLongClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                    ProviderBean item = getItem(position);
+                    return onItemClickListener.onItemLongClick(item);
+                }
+                return false;
+            });
         }
 
         public TextView getTitle() {

@@ -24,15 +24,14 @@ public class ServiceRVAdapter extends FilterableListAdapter<ServiceBean, Service
     public static final DiffUtil.ItemCallback<ServiceBean> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ServiceBean oldItem, @NonNull ServiceBean newItem) {
-            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
-            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
-            return isNameTheSame && isLabelTheSame;
+            return Objects.equals(oldItem.getServiceInfo(), newItem.getServiceInfo());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ServiceBean oldItem, @NonNull ServiceBean newItem) {
-            boolean isServiceInfoTheSame = oldItem.getServiceInfo() == newItem.getServiceInfo();
-            return isServiceInfoTheSame;
+            boolean isNameTheSame = Objects.equals(oldItem.getName(), newItem.getName());
+            boolean isLabelTheSame = Objects.equals(oldItem.getLabel(), newItem.getLabel());
+            return isNameTheSame && isLabelTheSame;
         }
     };
 

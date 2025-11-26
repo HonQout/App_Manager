@@ -1,8 +1,22 @@
 <resources>
     <string name="app_name">App Manager</string>
+
+    <!-- Basic -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="empty">Empty</string>
+    <string name="unknown">Unknown</string>
+
+    <!-- Title -->
+    <!-- Activity title -->
+    <string name="app_detail">App detail</string>
+    <!-- Navigation title -->
     <string name="title_all_apps">All apps</string>
     <string name="title_system_apps">System apps</string>
-    <string name="app_detail">App detail</string>
+    <string name="title_user_apps">User apps</string>
+    <!-- Tab title -->
     <string name="overview">Overview</string>
     <string name="permission_defined">Permission defined</string>
     <string name="permission_requested">Permission requested</string>
@@ -10,12 +24,19 @@
     <string name="service">Service</string>
     <string name="content_provider">Content provider</string>
     <string name="broadcast_receiver">Broadcast receiver</string>
+    <!-- Dialog title -->
+    <string name="detail">Detail</string>
+
+    <!-- Hint -->
     <string name="cannot_find_package">Cannot find package.</string>
+    <string name="cannot_access_unexported_activity">Cannot access unexported activity.</string>
+    <string name="activity_requires_extra_permission">This activity requires extra permission to be started.</string>
+    <string name="reason_permission_query_all_packages">This app requires permission to query all packages on your device. If it is declined, the fundamental function of this app will not work properly. Click \"Settings\" to go to AppDetails page of system settings and grant this permission.</string>
+
+    <!-- Others -->
     <string name="package_name">Package name</string>
     <string name="version">Version</string>
     <string name="system_app">System app</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="enabled">Enabled</string>
     <string name="allow_clear_user_data">Allow clear user data</string>
     <string name="allow_backup">Allow backup</string>
@@ -32,19 +53,57 @@
     <string name="num_items">%d item(s)</string>
     <string name="search">Search</string>
     <string name="search_for_items">Search for items</string>
-    <string name="cannot_access_unexported_activity">Cannot access unexported activity.</string>
-    <string name="activity_requires_extra_permission">This activity requires extra permission to be started.</string>
     <string name="activity_not_found">Cannot find activity.</string>
-    <string name="title_user_apps">User apps</string>
     <string name="request_permission">Request permission</string>
-    <string name="reason_permission_query_all_packages">This app requires permission to query all packages on your device. If it is declined, the fundamental function of this app will not work properly. Click \"Settings\" to go to AppDetails page of system settings and grant this permission.</string>
     <string name="settings">Settings</string>
-    <string name="cancel">Cancel</string>
     <string name="label">Label</string>
     <string name="permission">Permission</string>
     <string name="launch">Launch</string>
-    <string name="empty">Empty</string>
     <string name="exported">Exported</string>
     <string name="description">Description</string>
-    <string name="confirm">Confirm</string>
+    <string name="permission_group">Permission group</string>
+    <string name="protection_level">Protection level</string>
+    <string name="provider_authority">Authority</string>
+    <string name="read_permission">Read permission</string>
+    <string name="write_permission">Write permission</string>
+    <string name="grant_uri_permissions">Grant Uri permissions</string>
+    <string name="force_uri_permissions">Force Uri permissions</string>
+    <string name="multiprocess">Multiprocess</string>
+    <string name="init_order">Init order</string>
+    <string name="theme">Theme</string>
+    <string name="multiple">Multiple</string>
+    <string name="single_top">Single top</string>
+    <string name="single_task">Single task</string>
+    <string name="single_instance">Single instance</string>
+    <string name="single_instance_per_task">Single instance per task</string>
+    <string name="launch_mode">Launch mode</string>
+    <string name="max_recents">Max task count</string>
+    <string name="task_affinity">Task affinity</string>
+    <string name="parent_activity_name">Parent activity name</string>
+    <string name="target_activity">Target activity</string>
+    <string name="required_display_category">Required display category</string>
+    <string name="data_sync">Data sync</string>
+    <string name="media_playback">Media playback</string>
+    <string name="phone_call">Phone call</string>
+    <string name="location">Location</string>
+    <string name="connected_device">Connected device</string>
+    <string name="media_projection">Media projection</string>
+    <string name="camera">Camera</string>
+    <string name="microphone">Microphone</string>
+    <string name="health">Health</string>
+    <string name="remote_messaging">Remote messaging</string>
+    <string name="system_exempted">System exempted</string>
+    <string name="short_service">Short service</string>
+    <string name="media_processing">Media processing</string>
+    <string name="special_use">Special use</string>
+    <string name="manifest">Manifest</string>
+    <string name="type">Type</string>
+    <string name="stop_with_task">Stop with task</string>
+    <string name="isolated_process">Isolated process</string>
+    <string name="external_service">External service</string>
+    <string name="use_app_zygote">Use app zygote</string>
+    <string name="allow_shared_isolated_process">Allow shared isolated process</string>
+    <string name="single_user">Single user</string>
+    <string name="process_name">Process name</string>
+
 </resources>
