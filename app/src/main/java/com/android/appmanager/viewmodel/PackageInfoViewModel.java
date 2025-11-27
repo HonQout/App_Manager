@@ -11,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.view.View;
 import android.widget.Toast;
 
@@ -288,7 +289,9 @@ public class PackageInfoViewModel extends AndroidViewModel {
         list.add(new TCItem(context.getString(R.string.permission), activityBean.getActivityInfo().permission));
         list.add(new TCItem(context.getString(R.string.task_affinity), activityBean.getActivityInfo().taskAffinity));
         list.add(new TCItem(context.getString(R.string.target_activity), activityBean.getActivityInfo().targetActivity));
-        list.add(new TCItem(context.getString(R.string.required_display_category), activityBean.getActivityInfo().requiredDisplayCategory));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            list.add(new TCItem(context.getString(R.string.required_display_category), activityBean.getActivityInfo().requiredDisplayCategory));
+        }
         list.add(new TCItem(context.getString(R.string.parent_activity_name), activityBean.getActivityInfo().parentActivityName));
         list.add(new TCItem(context.getString(R.string.enabled), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().isEnabled()))));
         list.add(new TCItem(context.getString(R.string.exported), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().exported))));
@@ -320,7 +323,9 @@ public class PackageInfoViewModel extends AndroidViewModel {
         list.add(new TCItem(context.getString(R.string.read_permission), providerBean.getProviderInfo().readPermission));
         list.add(new TCItem(context.getString(R.string.write_permission), providerBean.getProviderInfo().writePermission));
         list.add(new TCItem(context.getString(R.string.grant_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().grantUriPermissions)));
-        list.add(new TCItem(context.getString(R.string.force_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().forceUriPermissions)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            list.add(new TCItem(context.getString(R.string.force_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().forceUriPermissions)));
+        }
         list.add(new TCItem(context.getString(R.string.multiprocess), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().multiprocess)));
         list.add(new TCItem(context.getString(R.string.init_order), String.valueOf(providerBean.getProviderInfo().initOrder)));
         return list;
