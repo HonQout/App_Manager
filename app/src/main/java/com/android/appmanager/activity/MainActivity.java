@@ -6,9 +6,9 @@ import android.os.Bundle;
 
 import com.android.appmanager.R;
 import com.android.appmanager.adapter.viewpager2.AppListPagerAdapter;
-import com.android.appmanager.utils.AppUtils;
+import com.android.appmanager.utils.IntentUtils;
 import com.android.appmanager.utils.PermissionUtils;
-import com.android.appmanager.viewmodel.AppListViewModel;
+import com.android.appmanager.viewmodel.AppViewModel;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -23,7 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
-    private AppListViewModel viewModel;
+    private AppViewModel viewModel;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
@@ -66,11 +66,11 @@ public class MainActivity extends AppCompatActivity {
         });
         binding.aMainViewpager2.setUserInputEnabled(false);
         // Initialize ViewModel
-        viewModel = new ViewModelProvider(this).get(AppListViewModel.class);
+        viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         // Register permission callback
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
-                viewModel.initPackageBean();
+                viewModel.init();
             }
         });
     }
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (PermissionUtils.checkQueryAllPackagesPermission(this)) {
-            viewModel.initPackageBean();
+            viewModel.init();
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.QUERY_ALL_PACKAGES)) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.request_permission)
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     })
                     .setPositiveButton(R.string.settings, (dialog, which) ->
-                            AppUtils.launchAppDetailsSettings(MainActivity.this, "com.android.appmanager"))
+                            IntentUtils.launchApplicationDetailsSettings(MainActivity.this, getApplicationContext().getPackageName()))
                     .show();
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

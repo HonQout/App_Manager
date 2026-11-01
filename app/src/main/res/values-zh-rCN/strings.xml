@@ -94,4 +94,5 @@
     <string name="allow_shared_isolated_process">允许共享独立进程</string>
     <string name="single_user">单一用户</string>
     <string name="process_name">进程名称</string>
+    <string name="backup_apk">备份APK</string>
 </resources>

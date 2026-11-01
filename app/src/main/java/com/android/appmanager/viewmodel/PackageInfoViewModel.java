@@ -17,22 +17,22 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.appmanager.R;
 import com.android.appmanager.adapter.recyclerview.TCHListAdapter;
 import com.android.appmanager.adapter.recyclerview.TCVListAdapter;
-import com.android.appmanager.bean.ActivityBean;
-import com.android.appmanager.bean.PackageBean;
-import com.android.appmanager.bean.PermissionBean;
-import com.android.appmanager.bean.ProviderBean;
-import com.android.appmanager.bean.ReceiverBean;
-import com.android.appmanager.bean.ServiceBean;
-import com.android.appmanager.bean.item.TCItem;
-import com.android.appmanager.bean.permission.PermissionSorted;
+import com.android.appmanager.data.model.ActivityModel;
+import com.android.appmanager.data.model.PackageModel;
+import com.android.appmanager.data.model.PermissionModel;
+import com.android.appmanager.data.model.ProviderModel;
+import com.android.appmanager.data.model.ReceiverModel;
+import com.android.appmanager.data.model.ServiceModel;
+import com.android.appmanager.data.model.item.TCItem;
+import com.android.appmanager.data.model.permission.PermissionSorted;
 import com.android.appmanager.utils.ActivityUtils;
-import com.android.appmanager.utils.LocaleUtils;
 import com.android.appmanager.utils.PackageUtils;
 import com.android.appmanager.utils.StringUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,6 +40,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,13 +51,13 @@ public class PackageInfoViewModel extends AndroidViewModel {
             R.string.content_provider, R.string.broadcast_receiver};
     private final MutableLiveData<PackageInfo> mPackageInfo = new MutableLiveData<>();
     private final MutableLiveData<List<TCItem>> mOverviewList = new MutableLiveData<>();
-    private final MutableLiveData<List<PermissionBean>> mDefinedPermissionBeanList = new MutableLiveData<>();
-    private final MutableLiveData<List<PermissionBean>> mRequestedPermissionBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<PermissionModel>> mDefinedPermissionBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<PermissionModel>> mRequestedPermissionBeanList = new MutableLiveData<>();
     private final MutableLiveData<List<String>> mPermissionNotFoundList = new MutableLiveData<>();
-    private final MutableLiveData<List<ActivityBean>> mActivityBeanList = new MutableLiveData<>();
-    private final MutableLiveData<List<ServiceBean>> mServiceBeanList = new MutableLiveData<>();
-    private final MutableLiveData<List<ProviderBean>> mProviderBeanList = new MutableLiveData<>();
-    private final MutableLiveData<List<ReceiverBean>> mReceiverBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<ActivityModel>> mActivityBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<ServiceModel>> mServiceBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<ProviderModel>> mProviderBeanList = new MutableLiveData<>();
+    private final MutableLiveData<List<ReceiverModel>> mReceiverBeanList = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     // Broadcast Receiver
@@ -108,78 +109,77 @@ public class PackageInfoViewModel extends AndroidViewModel {
         executorService.execute(() -> {
             Context context = getApplication();
             mPackageInfo.postValue(packageInfo);
-            PackageBean packageBean = new PackageBean(context, packageInfo);
+            PackageModel packageModel = new PackageModel(context, packageInfo);
             String packageName = packageInfo.packageName;
             // Overview
             List<TCItem> overviewList = new ArrayList<>();
-            overviewList.add(new TCItem(context.getString(R.string.name), packageBean.getLabel()));
+            overviewList.add(new TCItem(context.getString(R.string.name), packageModel.getLabel()));
             overviewList.add(new TCItem(context.getString(R.string.package_name), packageName));
-            overviewList.add(new TCItem(context.getString(R.string.version), packageBean.getVersion()));
-            overviewList.add(new TCItem(context.getString(R.string.target_sdk_version), packageBean.getTargetSdkVersion()));
-            overviewList.add(new TCItem(context.getString(R.string.min_sdk_version), packageBean.getMinSdkVersion()));
-            overviewList.add(new TCItem(context.getString(R.string.compile_sdk_version), packageBean.getCompileSdkVersion()));
-            overviewList.add(new TCItem(context.getString(R.string.shared_user_id), packageBean.getSharedUserId()));
-            overviewList.add(new TCItem(context.getString(R.string.shared_user_label), packageBean.getSharedUserLabel()));
-            overviewList.add(new TCItem(context.getString(R.string.uid), packageBean.getUid()));
-            overviewList.add(new TCItem(context.getString(R.string.system_app), StringUtils.getLocaleJudgement(context, packageBean.isSystemApp())));
-            overviewList.add(new TCItem(context.getString(R.string.allow_clear_user_data), StringUtils.getLocaleJudgement(context, packageBean.doesAllowClearUserData())));
-            overviewList.add(new TCItem(context.getString(R.string.allow_backup), StringUtils.getLocaleJudgement(context, packageBean.doesAllowBackup())));
-            overviewList.add(new TCItem(context.getString(R.string.enabled), StringUtils.getLocaleJudgement(context, packageBean.isEnabled())));
-            overviewList.add(new TCItem(context.getString(R.string.first_install_time), packageBean.getFirstInstallTime()));
-            overviewList.add(new TCItem(context.getString(R.string.last_update_time), packageBean.getLastUpdateTime()));
-            overviewList.add(new TCItem(context.getString(R.string.install_source), packageBean.getInstallSource(context)));
+            overviewList.add(new TCItem(context.getString(R.string.version), packageModel.getCombinedVersion()));
+            overviewList.add(new TCItem(context.getString(R.string.target_sdk_version), packageModel.getTargetSdkVersion()));
+            overviewList.add(new TCItem(context.getString(R.string.min_sdk_version), packageModel.getMinSdkVersion()));
+            overviewList.add(new TCItem(context.getString(R.string.compile_sdk_version), packageModel.getCompileSdkVersion()));
+            overviewList.add(new TCItem(context.getString(R.string.shared_user_id), packageModel.getSharedUserId()));
+            overviewList.add(new TCItem(context.getString(R.string.shared_user_label), packageModel.getSharedUserLabel()));
+            overviewList.add(new TCItem(context.getString(R.string.uid), packageModel.getUid()));
+            overviewList.add(new TCItem(context.getString(R.string.system_app), StringUtils.getLocaleJudgement(context, packageModel.isSystemApp())));
+            overviewList.add(new TCItem(context.getString(R.string.allow_clear_user_data), StringUtils.getLocaleJudgement(context, packageModel.doesAllowClearUserData())));
+            overviewList.add(new TCItem(context.getString(R.string.allow_backup), StringUtils.getLocaleJudgement(context, packageModel.doesAllowBackup())));
+            overviewList.add(new TCItem(context.getString(R.string.enabled), StringUtils.getLocaleJudgement(context, packageModel.isEnabled())));
+            overviewList.add(new TCItem(context.getString(R.string.first_install_time), packageModel.getFirstInstallTime()));
+            overviewList.add(new TCItem(context.getString(R.string.last_update_time), packageModel.getLastUpdateTime()));
+            overviewList.add(new TCItem(context.getString(R.string.install_source), packageModel.getInstallSource(context)));
             mOverviewList.postValue(overviewList);
             // Others
             PermissionSorted permissionSorted = PackageUtils.getPermissionSorted(context, packageName);
-            List<PermissionBean> definedPermissionBeanList = new ArrayList<>();
+            List<PermissionModel> definedPermissionModelList = new ArrayList<>();
             for (PermissionInfo permissionInfo : permissionSorted.permissionDefinedList) {
-                definedPermissionBeanList.add(new PermissionBean(context, permissionInfo));
+                definedPermissionModelList.add(new PermissionModel(context, permissionInfo));
             }
-            sortPermissionBeanList(definedPermissionBeanList);
-            mDefinedPermissionBeanList.postValue(definedPermissionBeanList);
-            List<PermissionBean> requestedPermissionBeanList = new ArrayList<>();
+            sortPermissionBeanList(definedPermissionModelList);
+            mDefinedPermissionBeanList.postValue(definedPermissionModelList);
+            List<PermissionModel> requestedPermissionModelList = new ArrayList<>();
             for (PermissionInfo permissionInfo : permissionSorted.permissionRequestedList) {
-                requestedPermissionBeanList.add(new PermissionBean(context, permissionInfo));
+                requestedPermissionModelList.add(new PermissionModel(context, permissionInfo));
             }
-            sortPermissionBeanList(requestedPermissionBeanList);
-            mRequestedPermissionBeanList.postValue(requestedPermissionBeanList);
+            sortPermissionBeanList(requestedPermissionModelList);
+            mRequestedPermissionBeanList.postValue(requestedPermissionModelList);
             mPermissionNotFoundList.postValue(permissionSorted.permissionNotFoundList);
             List<ActivityInfo> activityInfoList = PackageUtils.getActivityInfoList(context, packageName);
-            List<ActivityBean> activityBeanList = new ArrayList<>();
+            List<ActivityModel> activityModelList = new ArrayList<>();
             for (ActivityInfo activityInfo : activityInfoList) {
-                activityBeanList.add(new ActivityBean(context, activityInfo));
+                activityModelList.add(new ActivityModel(context, activityInfo));
             }
-            sortActivityBeanList(activityBeanList);
-            mActivityBeanList.postValue(activityBeanList);
+            sortActivityBeanList(activityModelList);
+            mActivityBeanList.postValue(activityModelList);
             List<ServiceInfo> serviceInfoList = PackageUtils.getServiceInfoList(context, packageName);
-            List<ServiceBean> serviceBeanList = new ArrayList<>();
+            List<ServiceModel> serviceModelList = new ArrayList<>();
             for (ServiceInfo serviceInfo : serviceInfoList) {
-                serviceBeanList.add(new ServiceBean(context, serviceInfo));
+                serviceModelList.add(new ServiceModel(context, serviceInfo));
             }
-            sortServiceBeanList(serviceBeanList);
-            mServiceBeanList.postValue(serviceBeanList);
+            sortServiceBeanList(serviceModelList);
+            mServiceBeanList.postValue(serviceModelList);
             List<ProviderInfo> providerInfoList = PackageUtils.getProviderInfoList(context, packageName);
-            List<ProviderBean> providerBeanList = new ArrayList<>();
+            List<ProviderModel> providerModelList = new ArrayList<>();
             for (ProviderInfo providerInfo : providerInfoList) {
-                providerBeanList.add(new ProviderBean(context, providerInfo));
+                providerModelList.add(new ProviderModel(context, providerInfo));
             }
-            sortProviderBeanList(providerBeanList);
-            mProviderBeanList.postValue(providerBeanList);
+            sortProviderBeanList(providerModelList);
+            mProviderBeanList.postValue(providerModelList);
             List<ActivityInfo> receiverInfoList = PackageUtils.getReceiverInfoList(context, packageName);
-            List<ReceiverBean> receiverBeanList = new ArrayList<>();
+            List<ReceiverModel> receiverModelList = new ArrayList<>();
             for (ActivityInfo receiverInfo : receiverInfoList) {
-                receiverBeanList.add(new ReceiverBean(context, receiverInfo));
+                receiverModelList.add(new ReceiverModel(context, receiverInfo));
             }
-            sortReceiverBeanList(receiverBeanList);
-            mReceiverBeanList.postValue(receiverBeanList);
+            sortReceiverBeanList(receiverModelList);
+            mReceiverBeanList.postValue(receiverModelList);
         });
     }
 
-    public void sortPermissionBeanList(List<PermissionBean> permissionBeanList) {
-        Context context = getApplication();
-        Collator collator = Collator.getInstance(LocaleUtils.getPrimaryLocale(context));
-        if (permissionBeanList != null) {
-            permissionBeanList.sort((o1, o2) -> {
+    public void sortPermissionBeanList(List<PermissionModel> permissionModelList) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+        if (permissionModelList != null) {
+            permissionModelList.sort((o1, o2) -> {
                 String name1 = o1.getName();
                 String name2 = o2.getName();
                 return collator.compare(name1, name2);
@@ -187,11 +187,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
         }
     }
 
-    public void sortActivityBeanList(List<ActivityBean> activityBeanList) {
-        Context context = getApplication();
-        Collator collator = Collator.getInstance(LocaleUtils.getPrimaryLocale(context));
-        if (activityBeanList != null) {
-            activityBeanList.sort((o1, o2) -> {
+    public void sortActivityBeanList(List<ActivityModel> activityModelList) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+        if (activityModelList != null) {
+            activityModelList.sort((o1, o2) -> {
                 String name1 = o1.getActivityName();
                 String name2 = o2.getActivityName();
                 return collator.compare(name1, name2);
@@ -199,11 +198,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
         }
     }
 
-    public void sortServiceBeanList(List<ServiceBean> serviceBeanList) {
-        Context context = getApplication();
-        Collator collator = Collator.getInstance(LocaleUtils.getPrimaryLocale(context));
-        if (serviceBeanList != null) {
-            serviceBeanList.sort((o1, o2) -> {
+    public void sortServiceBeanList(List<ServiceModel> serviceModelList) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+        if (serviceModelList != null) {
+            serviceModelList.sort((o1, o2) -> {
                 String name1 = o1.getName();
                 String name2 = o2.getName();
                 return collator.compare(name1, name2);
@@ -211,11 +209,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
         }
     }
 
-    public void sortProviderBeanList(List<ProviderBean> providerBeanList) {
-        Context context = getApplication();
-        Collator collator = Collator.getInstance(LocaleUtils.getPrimaryLocale(context));
-        if (providerBeanList != null) {
-            providerBeanList.sort((o1, o2) -> {
+    public void sortProviderBeanList(List<ProviderModel> providerModelList) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+        if (providerModelList != null) {
+            providerModelList.sort((o1, o2) -> {
                 String name1 = o1.getName();
                 String name2 = o2.getName();
                 return collator.compare(name1, name2);
@@ -223,11 +220,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
         }
     }
 
-    public void sortReceiverBeanList(List<ReceiverBean> receiverBeanList) {
-        Context context = getApplication();
-        Collator collator = Collator.getInstance(LocaleUtils.getPrimaryLocale(context));
-        if (receiverBeanList != null) {
-            receiverBeanList.sort((o1, o2) -> {
+    public void sortReceiverBeanList(List<ReceiverModel> receiverModelList) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+        if (receiverModelList != null) {
+            receiverModelList.sort((o1, o2) -> {
                 String name1 = o1.getName();
                 String name2 = o2.getName();
                 return collator.compare(name1, name2);
@@ -235,118 +231,128 @@ public class PackageInfoViewModel extends AndroidViewModel {
         }
     }
 
-    public MutableLiveData<List<TCItem>> getOverviewList() {
+    public LiveData<PackageInfo> getPackageInfo() {
+        return mPackageInfo;
+    }
+
+    public LiveData<List<TCItem>> getOverviewList() {
         return mOverviewList;
     }
 
-    public MutableLiveData<List<PermissionBean>> getDefinedPermissionBeanList() {
+    public LiveData<List<PermissionModel>> getDefinedPermissionBeanList() {
         return mDefinedPermissionBeanList;
     }
 
-    public MutableLiveData<List<PermissionBean>> getRequestedPermissionBeanList() {
+    public LiveData<List<PermissionModel>> getRequestedPermissionBeanList() {
         return mRequestedPermissionBeanList;
     }
 
-    public List<String> getPermissionNotFoundList() {
-        return mPermissionNotFoundList.getValue();
+    public LiveData<List<String>> getPermissionNotFoundList() {
+        return mPermissionNotFoundList;
     }
 
-    public MutableLiveData<List<ActivityBean>> getActivityBeanList() {
+    public LiveData<List<ActivityModel>> getActivityBeanList() {
         return mActivityBeanList;
     }
 
-    public MutableLiveData<List<ServiceBean>> getServiceBeanList() {
+    public LiveData<List<ServiceModel>> getServiceBeanList() {
         return mServiceBeanList;
     }
 
-    public MutableLiveData<List<ProviderBean>> getProviderBeanList() {
+    public LiveData<List<ProviderModel>> getProviderBeanList() {
         return mProviderBeanList;
     }
 
-    public MutableLiveData<List<ReceiverBean>> getReceiverBeanList() {
+    public LiveData<List<ReceiverModel>> getReceiverBeanList() {
         return mReceiverBeanList;
     }
 
-    public List<TCItem> getPermissionDetailList(PermissionBean permissionBean) {
+    public List<TCItem> getPermissionDetailList(PermissionModel permissionModel) {
         Context context = getApplication();
         List<TCItem> list = new ArrayList<>();
-        list.add(new TCItem(context.getString(R.string.name), permissionBean.getName()));
-        list.add(new TCItem(context.getString(R.string.label), permissionBean.getLabel()));
-        list.add(new TCItem(context.getString(R.string.permission_group), permissionBean.getGroup()));
-        list.add(new TCItem(context.getString(R.string.protection_level), String.valueOf(permissionBean.getProtectionLevel())));
-        list.add(new TCItem(context.getString(R.string.description), permissionBean.getDescription()));
+        list.add(new TCItem(context.getString(R.string.name), permissionModel.getName()));
+        list.add(new TCItem(context.getString(R.string.label), permissionModel.getLabel()));
+        list.add(new TCItem(context.getString(R.string.permission_group), permissionModel.getGroup()));
+        list.add(new TCItem(context.getString(R.string.protection_level), String.valueOf(permissionModel.getProtectionFlags())));
+        list.add(new TCItem(context.getString(R.string.description), permissionModel.getDescription()));
         return list;
     }
 
-    public List<TCItem> getActivityDetailList(ActivityBean activityBean) {
+    public List<TCItem> getActivityDetailList(ActivityModel activityModel) {
         Context context = getApplication();
         List<TCItem> list = new ArrayList<>();
-        list.add(new TCItem(context.getString(R.string.name), activityBean.getActivityName()));
-        list.add(new TCItem(context.getString(R.string.label), activityBean.getLabel()));
-        list.add(new TCItem(context.getString(R.string.theme), activityBean.getThemeName(context)));
-        list.add(new TCItem(context.getString(R.string.launch_mode), activityBean.getLocaleLaunchMode(context)));
-        list.add(new TCItem(context.getString(R.string.max_recents), String.valueOf(activityBean.getActivityInfo().maxRecents)));
-        list.add(new TCItem(context.getString(R.string.permission), activityBean.getActivityInfo().permission));
-        list.add(new TCItem(context.getString(R.string.task_affinity), activityBean.getActivityInfo().taskAffinity));
-        list.add(new TCItem(context.getString(R.string.target_activity), activityBean.getActivityInfo().targetActivity));
+        list.add(new TCItem(context.getString(R.string.name), activityModel.getActivityName()));
+        list.add(new TCItem(context.getString(R.string.label), activityModel.getLabel()));
+        list.add(new TCItem(context.getString(R.string.theme), activityModel.getThemeName(context)));
+        list.add(new TCItem(context.getString(R.string.launch_mode), activityModel.getLocalizedLaunchMode(context)));
+        list.add(new TCItem(context.getString(R.string.max_recents), String.valueOf(activityModel.getMaxRecents())));
+        list.add(new TCItem(context.getString(R.string.permission), activityModel.getPermission()));
+        list.add(new TCItem(context.getString(R.string.task_affinity), activityModel.getTaskAffinity()));
+        list.add(new TCItem(context.getString(R.string.target_activity), activityModel.getTargetActivity()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            list.add(new TCItem(context.getString(R.string.required_display_category), activityBean.getActivityInfo().requiredDisplayCategory));
+            list.add(new TCItem(context.getString(R.string.required_display_category), activityModel.getRequiredDisplayCategory()));
         }
-        list.add(new TCItem(context.getString(R.string.parent_activity_name), activityBean.getActivityInfo().parentActivityName));
-        list.add(new TCItem(context.getString(R.string.enabled), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().isEnabled()))));
-        list.add(new TCItem(context.getString(R.string.exported), context.getString(StringUtils.getLocaleJudgementRes(activityBean.getActivityInfo().exported))));
+        list.add(new TCItem(context.getString(R.string.parent_activity_name), activityModel.getParentActivityName()));
+        list.add(new TCItem(context.getString(R.string.enabled), context.getString(StringUtils.getLocaleJudgementRes(activityModel.isEnabled()))));
+        list.add(new TCItem(context.getString(R.string.exported), context.getString(StringUtils.getLocaleJudgementRes(activityModel.isExported()))));
         return list;
     }
 
-    public List<TCItem> getServiceDetailList(ServiceBean serviceBean) {
+    public List<TCItem> getServiceDetailList(ServiceModel serviceModel) {
         Context context = getApplication();
         List<TCItem> list = new ArrayList<>();
-        list.add(new TCItem(context.getString(R.string.name), serviceBean.getName()));
-        list.add(new TCItem(context.getString(R.string.label), serviceBean.getLabel()));
-        list.add(new TCItem(context.getString(R.string.permission), serviceBean.getServiceInfo().permission));
-        list.add(new TCItem(context.getString(R.string.type), serviceBean.getLocaleForegroundServiceType(context)));
-        list.add(new TCItem(context.getString(R.string.stop_with_task), StringUtils.getLocaleJudgement(context, serviceBean.doesStopWithTask())));
-        list.add(new TCItem(context.getString(R.string.isolated_process), StringUtils.getLocaleJudgement(context, serviceBean.isIsolatedProcess())));
-        list.add(new TCItem(context.getString(R.string.external_service), StringUtils.getLocaleJudgement(context, serviceBean.isExternalService())));
-        list.add(new TCItem(context.getString(R.string.use_app_zygote), StringUtils.getLocaleJudgement(context, serviceBean.doesUseAppZygote())));
-        list.add(new TCItem(context.getString(R.string.allow_shared_isolated_process), StringUtils.getLocaleJudgement(context, serviceBean.doesAllowSharedIsolatedProcess())));
-        list.add(new TCItem(context.getString(R.string.single_user), StringUtils.getLocaleJudgement(context, serviceBean.isSingleUser())));
-        return list;
-    }
-
-    public List<TCItem> getProviderDetailList(ProviderBean providerBean) {
-        Context context = getApplication();
-        List<TCItem> list = new ArrayList<>();
-        list.add(new TCItem(context.getString(R.string.name), providerBean.getName()));
-        list.add(new TCItem(context.getString(R.string.label), providerBean.getLabel()));
-        list.add(new TCItem(context.getString(R.string.provider_authority), providerBean.getProviderInfo().authority));
-        list.add(new TCItem(context.getString(R.string.read_permission), providerBean.getProviderInfo().readPermission));
-        list.add(new TCItem(context.getString(R.string.write_permission), providerBean.getProviderInfo().writePermission));
-        list.add(new TCItem(context.getString(R.string.grant_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().grantUriPermissions)));
+        list.add(new TCItem(context.getString(R.string.name), serviceModel.getName()));
+        list.add(new TCItem(context.getString(R.string.label), serviceModel.getLabel()));
+        list.add(new TCItem(context.getString(R.string.permission), serviceModel.getPermission()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            list.add(new TCItem(context.getString(R.string.force_uri_permissions), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().forceUriPermissions)));
+            list.add(new TCItem(context.getString(R.string.type), serviceModel.getLocalizedForegroundServiceType(context)));
         }
-        list.add(new TCItem(context.getString(R.string.multiprocess), StringUtils.getLocaleJudgement(context, providerBean.getProviderInfo().multiprocess)));
-        list.add(new TCItem(context.getString(R.string.init_order), String.valueOf(providerBean.getProviderInfo().initOrder)));
+        list.add(new TCItem(context.getString(R.string.stop_with_task), StringUtils.getLocaleJudgement(context, serviceModel.doesStopWithTask())));
+        list.add(new TCItem(context.getString(R.string.isolated_process), StringUtils.getLocaleJudgement(context, serviceModel.isIsolatedProcess())));
+        list.add(new TCItem(context.getString(R.string.external_service), StringUtils.getLocaleJudgement(context, serviceModel.isExternalService())));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            list.add(new TCItem(context.getString(R.string.use_app_zygote), StringUtils.getLocaleJudgement(context, serviceModel.doesUseAppZygote())));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            list.add(new TCItem(context.getString(R.string.allow_shared_isolated_process), StringUtils.getLocaleJudgement(context, serviceModel.doesAllowSharedIsolatedProcess())));
+        }
+        list.add(new TCItem(context.getString(R.string.single_user), StringUtils.getLocaleJudgement(context, serviceModel.isSingleUser())));
         return list;
     }
 
-    public List<TCItem> getReceiverDetailList(ReceiverBean receiverBean) {
+    public List<TCItem> getProviderDetailList(ProviderModel providerModel) {
         Context context = getApplication();
         List<TCItem> list = new ArrayList<>();
-        list.add(new TCItem(context.getString(R.string.name), receiverBean.getName()));
-        list.add(new TCItem(context.getString(R.string.label), receiverBean.getLabel()));
-        list.add(new TCItem(context.getString(R.string.process_name), receiverBean.getReceiverInfo().processName));
-        list.add(new TCItem(context.getString(R.string.permission), receiverBean.getReceiverInfo().permission));
-        list.add(new TCItem(context.getString(R.string.enabled), StringUtils.getLocaleJudgement(context, receiverBean.getReceiverInfo().enabled)));
-        list.add(new TCItem(context.getString(R.string.exported), StringUtils.getLocaleJudgement(context, receiverBean.getReceiverInfo().exported)));
+        list.add(new TCItem(context.getString(R.string.name), providerModel.getName()));
+        list.add(new TCItem(context.getString(R.string.label), providerModel.getLabel()));
+        list.add(new TCItem(context.getString(R.string.provider_authority), providerModel.getAuthority()));
+        list.add(new TCItem(context.getString(R.string.read_permission), providerModel.getReadPermission()));
+        list.add(new TCItem(context.getString(R.string.write_permission), providerModel.getWritePermission()));
+        list.add(new TCItem(context.getString(R.string.grant_uri_permissions), StringUtils.getLocaleJudgement(context, providerModel.isGrantUriPermissions())));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            list.add(new TCItem(context.getString(R.string.force_uri_permissions), StringUtils.getLocaleJudgement(context, providerModel.isForceUriPermissions())));
+        }
+        list.add(new TCItem(context.getString(R.string.multiprocess), StringUtils.getLocaleJudgement(context, providerModel.isMultiProcess())));
+        list.add(new TCItem(context.getString(R.string.init_order), String.valueOf(providerModel.getInitOrder())));
         return list;
     }
 
-    public void showPermissionDetailDialog(@NonNull Activity activity, PermissionBean permissionBean) {
+    public List<TCItem> getReceiverDetailList(ReceiverModel receiverModel) {
+        Context context = getApplication();
+        List<TCItem> list = new ArrayList<>();
+        list.add(new TCItem(context.getString(R.string.name), receiverModel.getName()));
+        list.add(new TCItem(context.getString(R.string.label), receiverModel.getLabel()));
+        list.add(new TCItem(context.getString(R.string.process_name), receiverModel.getProcessName()));
+        list.add(new TCItem(context.getString(R.string.permission), receiverModel.getPermission()));
+        list.add(new TCItem(context.getString(R.string.enabled), StringUtils.getLocaleJudgement(context, receiverModel.isEnabled())));
+        list.add(new TCItem(context.getString(R.string.exported), StringUtils.getLocaleJudgement(context, receiverModel.isExported())));
+        return list;
+    }
+
+    public void showPermissionDetailDialog(@NonNull Activity activity, PermissionModel permissionModel) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCVListAdapter tcvListAdapter = new TCVListAdapter(getPermissionDetailList(permissionBean));
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getPermissionDetailList(permissionModel));
         recyclerView.setAdapter(tcvListAdapter);
         new MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.detail)
@@ -355,29 +361,31 @@ public class PackageInfoViewModel extends AndroidViewModel {
                 .show();
     }
 
-    public void showActivityDetailDialog(@NonNull Activity activity, ActivityBean activityBean) {
+    public void showActivityDetailDialog(@NonNull Activity activity, ActivityModel activityModel) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCHListAdapter tchListAdapter = new TCHListAdapter(getActivityDetailList(activityBean));
+        TCHListAdapter tchListAdapter = new TCHListAdapter(getActivityDetailList(activityModel));
         recyclerView.setAdapter(tchListAdapter);
         new MaterialAlertDialogBuilder(activity)
-                .setIcon(activityBean.getIcon())
                 .setTitle(R.string.detail)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(R.string.launch, (dialog, which) -> {
                     ActivityUtils.LaunchActivityResult result
-                            = ActivityUtils.LaunchActivity(activity, activityBean.getActivityInfo());
+                            = ActivityUtils.LaunchActivity(activity, activityModel);
                     switch (result) {
-                        case NOT_EXPORTED:
+                        case NOT_EXPORTED: {
                             Toast.makeText(activity, R.string.cannot_access_unexported_activity, Toast.LENGTH_SHORT).show();
                             break;
-                        case REQUIRE_PERMISSION:
+                        }
+                        case REQUIRE_PERMISSION: {
                             Toast.makeText(activity, R.string.activity_requires_extra_permission, Toast.LENGTH_SHORT).show();
                             break;
-                        case NOT_FOUND:
+                        }
+                        case NOT_FOUND: {
                             Toast.makeText(activity, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
                             break;
+                        }
                         default:
                             break;
                     }
@@ -385,10 +393,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
                 .show();
     }
 
-    public void showServiceDetailDialog(@NonNull Activity activity, ServiceBean serviceBean) {
+    public void showServiceDetailDialog(@NonNull Activity activity, ServiceModel serviceModel) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCVListAdapter tcvListAdapter = new TCVListAdapter(getServiceDetailList(serviceBean));
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getServiceDetailList(serviceModel));
         recyclerView.setAdapter(tcvListAdapter);
         new MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.detail)
@@ -397,10 +405,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
                 .show();
     }
 
-    public void showProviderDetailDialog(@NonNull Activity activity, ProviderBean providerBean) {
+    public void showProviderDetailDialog(@NonNull Activity activity, ProviderModel providerModel) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCVListAdapter tcvListAdapter = new TCVListAdapter(getProviderDetailList(providerBean));
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getProviderDetailList(providerModel));
         recyclerView.setAdapter(tcvListAdapter);
         new MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.detail)
@@ -409,10 +417,10 @@ public class PackageInfoViewModel extends AndroidViewModel {
                 .show();
     }
 
-    public void showReceiverDetailDialog(@NonNull Activity activity, ReceiverBean receiverBean) {
+    public void showReceiverDetailDialog(@NonNull Activity activity, ReceiverModel receiverModel) {
         View view = activity.getLayoutInflater().inflate(R.layout.dialog_tc_detail, null, false);
         RecyclerView recyclerView = view.findViewById(R.id.d_tc_detail_rv);
-        TCVListAdapter tcvListAdapter = new TCVListAdapter(getReceiverDetailList(receiverBean));
+        TCVListAdapter tcvListAdapter = new TCVListAdapter(getReceiverDetailList(receiverModel));
         recyclerView.setAdapter(tcvListAdapter);
         new MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.detail)

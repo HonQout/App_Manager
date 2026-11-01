@@ -14,11 +14,21 @@ import java.nio.channels.FileChannel;
 
 public class FileUtils {
     private static final String TAG = "FileUtils";
-    public static final int CANCEL = 0;
-    public static final int OVERWRITE = 1;
-    public static final int RENAME_THIS = 2;
 
-    @Nullable
+    public enum ConflictStrategy {
+        CANCEL, OVERWRITE, RENAME_NEW
+    }
+
+    /**
+     * Get the name of the file with the specified path.
+     *
+     * @param path
+     * @return The name without extension of the file with the specified path. Returns the name of
+     * the file if it does not have an extension. Throws FileNotFoundException if the file does not
+     * exist.
+     * @throws FileNotFoundException
+     */
+    @NonNull
     public static String getFileNameWithoutExtension(@NonNull String path) throws FileNotFoundException {
         File file = new File(path);
         if (file.exists()) {
@@ -26,13 +36,22 @@ public class FileUtils {
             int pos = fileName.lastIndexOf(".");
             if (pos > 0) {
                 return fileName.substring(0, pos);
+            } else {
+                return fileName;
             }
         } else {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Required file does not exist.");
         }
-        return null;
     }
 
+    /**
+     * Get the extension of the file with the specified path.
+     *
+     * @param path
+     * @return The extension of the file with the specified path. Returns null if the file does not
+     * have an extension. Throws FileNotFoundException if the file does not exist.
+     * @throws FileNotFoundException
+     */
     @Nullable
     public static String getFileNameExtension(@NonNull String path) throws FileNotFoundException {
         File file = new File(path);
@@ -41,53 +60,57 @@ public class FileUtils {
             int pos = fileName.lastIndexOf(".");
             if (pos > 0) {
                 return fileName.substring(pos);
+            } else {
+                return null;
             }
         } else {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Required file does not exist.");
         }
-        return null;
     }
 
-    public static void copy(String sourceAddress, String destAddress, int strategy) throws FileNotFoundException {
-        File sourceFile = new File(sourceAddress);
-        String sourceFileName;
-        if (!sourceFile.exists()) {
-            throw new RuntimeException("Source file does not exist.");
+    public static void copy(String srcAddress, String dstAddress, ConflictStrategy strategy) throws IOException {
+        // Get the name of source file
+        File srcFile = new File(srcAddress);
+        String srcFileName;
+        if (!srcFile.exists()) {
+            throw new FileNotFoundException("Source file does not exist.");
         } else {
-            sourceFileName = sourceFile.getName();
+            srcFileName = srcFile.getName();
         }
-        File destFile = new File(destAddress + File.separator + sourceFileName);
-        if (destFile.exists()) {
+        // Generate destination file and handle confliction
+        File dstFile = new File(dstAddress + File.separator + srcFileName);
+        if (dstFile.exists()) {
             switch (strategy) {
                 case CANCEL:
-                    Log.i(TAG, "Copy process ended because strategy is set to CANCEL.");
+                    Log.i(TAG, "Copy process ended because conflict strategy is set to CANCEL.");
                     return;
                 case OVERWRITE:
-                    if (!destFile.delete()) {
-                        throw new RuntimeException("Cannot delete existing file with the same name.");
+                    if (!dstFile.delete()) {
+                        Log.i(TAG, "Copy process ended because conflict strategy is set to OVERWRITE but existing file with the same name cannot be deleted.");
+                        throw new IOException("Cannot delete existing file with the same name.");
                     }
                     break;
-                case RENAME_THIS:
-                    String newName = FileUtils.getFileNameWithoutExtension(sourceAddress) + "(1)";
-                    String sourceFileExtension = FileUtils.getFileNameExtension(sourceAddress);
-                    destFile = new File(destAddress + File.separator + newName + sourceFileExtension);
+                case RENAME_NEW:
+                    String newName = FileUtils.getFileNameWithoutExtension(srcAddress) + "(1)";
+                    String srcFileExtension = FileUtils.getFileNameExtension(srcAddress);
+                    dstFile = new File(dstAddress + File.separator + newName + srcFileExtension);
                     break;
                 default:
-                    throw new IllegalArgumentException("Illegal strategy.");
+                    throw new IllegalArgumentException("Unknown conflict strategy.");
             }
         }
         try {
-            if (!destFile.createNewFile()) {
-                throw new RuntimeException("Cannot create new file.");
+            if (!dstFile.createNewFile()) {
+                throw new IOException("Cannot create new file.");
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
         FileInputStream fis;
         FileOutputStream fos;
         try {
-            fis = new FileInputStream(sourceAddress);
-            fos = new FileOutputStream(destFile.getAbsolutePath());
+            fis = new FileInputStream(srcAddress);
+            fos = new FileOutputStream(dstFile.getAbsolutePath());
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Cannot find file.");
         }

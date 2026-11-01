@@ -105,5 +105,6 @@
     <string name="allow_shared_isolated_process">Allow shared isolated process</string>
     <string name="single_user">Single user</string>
     <string name="process_name">Process name</string>
+    <string name="backup_apk">Backup APK</string>
 
 </resources>

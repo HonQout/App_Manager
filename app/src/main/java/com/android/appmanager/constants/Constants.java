@@ -6,6 +6,12 @@ public class Constants {
     }
 
     public enum PackageInfoScope {
-        Overview, PermissionDefined, PermissionRequested, Activity, Service, Provider, Receiver
+        Overview,
+        PermissionDefined,
+        PermissionRequested,
+        Activity,
+        Service,
+        Provider,
+        Receiver
     }
 }

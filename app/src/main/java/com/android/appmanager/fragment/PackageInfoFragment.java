@@ -15,20 +15,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.appmanager.R;
-import com.android.appmanager.adapter.recyclerview.ActivityRVAdapter;
-import com.android.appmanager.adapter.recyclerview.FilterableListAdapter;
-import com.android.appmanager.adapter.recyclerview.PermissionRVAdapter;
-import com.android.appmanager.adapter.recyclerview.ProviderRVAdapter;
-import com.android.appmanager.adapter.recyclerview.ReceiverRVAdapter;
-import com.android.appmanager.adapter.recyclerview.ServiceRVAdapter;
+import com.android.appmanager.ui.packageinfo.adapter.ReceiverListAdapter;
+import com.android.appmanager.ui.packageinfo.adapter.ProviderListAdapter;
+import com.android.appmanager.ui.packageinfo.adapter.PermissionListAdapter;
+import com.android.appmanager.ui.packageinfo.adapter.ActivityListAdapter;
+import com.android.appmanager.ui.packageinfo.adapter.ServiceListAdapter;
 import com.android.appmanager.adapter.recyclerview.TCVListAdapter;
-import com.android.appmanager.bean.ActivityBean;
-import com.android.appmanager.bean.PermissionBean;
-import com.android.appmanager.bean.ProviderBean;
-import com.android.appmanager.bean.ReceiverBean;
-import com.android.appmanager.bean.ServiceBean;
+import com.android.appmanager.data.model.ActivityModel;
+import com.android.appmanager.data.model.PermissionModel;
+import com.android.appmanager.data.model.ProviderModel;
+import com.android.appmanager.data.model.ReceiverModel;
+import com.android.appmanager.data.model.ServiceModel;
 import com.android.appmanager.constants.Constants;
 import com.android.appmanager.databinding.FragmentPackageInfoBinding;
+import com.android.appmanager.ui.recyclerview.adapter.OnItemClickListener;
 import com.android.appmanager.viewmodel.PackageInfoViewModel;
 
 import java.util.ArrayList;
@@ -81,86 +81,92 @@ public class PackageInfoFragment extends Fragment {
         binding = FragmentPackageInfoBinding.inflate(inflater, container, false);
         binding.fPackageInfoRv.setLayoutManager(new LinearLayoutManager(requireContext()));
         switch (packageInfoScope) {
-            case Overview:
+            case Overview: {
                 binding.fPackageInfoFl.setVisibility(View.GONE);
                 binding.fPackageInfoRv.setAdapter(new TCVListAdapter(new ArrayList<>()));
                 break;
+            }
             case PermissionDefined:
-            case PermissionRequested:
-                PermissionRVAdapter permissionRVAdapter = new PermissionRVAdapter(new ArrayList<>());
-                permissionRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+            case PermissionRequested: {
+                PermissionListAdapter adapter = new PermissionListAdapter(new ArrayList<>());
+                adapter.setOnItemClickListener(new OnItemClickListener<>() {
                     @Override
-                    public void onItemClick(PermissionBean item) {
+                    public void onItemClick(PermissionModel item, View view) {
                         viewModel.showPermissionDetailDialog(requireActivity(), item);
                     }
 
                     @Override
-                    public boolean onItemLongClick(PermissionBean item) {
+                    public boolean onItemLongClick(PermissionModel item, View view) {
                         return false;
                     }
                 });
-                binding.fPackageInfoRv.setAdapter(permissionRVAdapter);
+                binding.fPackageInfoRv.setAdapter(adapter);
                 break;
-            case Activity:
-                ActivityRVAdapter activityRVAdapter = new ActivityRVAdapter(new ArrayList<>());
-                activityRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+            }
+            case Activity: {
+                ActivityListAdapter adapter = new ActivityListAdapter(new ArrayList<>());
+                adapter.setOnItemClickListener(new OnItemClickListener<>() {
                     @Override
-                    public void onItemClick(ActivityBean item) {
+                    public void onItemClick(ActivityModel item, View view) {
                         viewModel.showActivityDetailDialog(requireActivity(), item);
                     }
 
                     @Override
-                    public boolean onItemLongClick(ActivityBean item) {
+                    public boolean onItemLongClick(ActivityModel item, View view) {
                         return false;
                     }
                 });
-                binding.fPackageInfoRv.setAdapter(activityRVAdapter);
+                binding.fPackageInfoRv.setAdapter(adapter);
                 break;
-            case Service:
-                ServiceRVAdapter serviceRVAdapter = new ServiceRVAdapter(new ArrayList<>());
-                serviceRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+            }
+            case Service: {
+                ServiceListAdapter adapter = new ServiceListAdapter(new ArrayList<>());
+                adapter.setOnItemClickListener(new OnItemClickListener<>() {
                     @Override
-                    public void onItemClick(ServiceBean item) {
+                    public void onItemClick(ServiceModel item, View view) {
                         viewModel.showServiceDetailDialog(requireActivity(), item);
                     }
 
                     @Override
-                    public boolean onItemLongClick(ServiceBean item) {
+                    public boolean onItemLongClick(ServiceModel item, View view) {
                         return false;
                     }
                 });
-                binding.fPackageInfoRv.setAdapter(serviceRVAdapter);
+                binding.fPackageInfoRv.setAdapter(adapter);
                 break;
-            case Provider:
-                ProviderRVAdapter providerRVAdapter = new ProviderRVAdapter(new ArrayList<>());
-                providerRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+            }
+            case Provider: {
+                ProviderListAdapter adapter = new ProviderListAdapter(new ArrayList<>());
+                adapter.setOnItemClickListener(new OnItemClickListener<>() {
                     @Override
-                    public void onItemClick(ProviderBean item) {
+                    public void onItemClick(ProviderModel item, View view) {
                         viewModel.showProviderDetailDialog(requireActivity(), item);
                     }
 
                     @Override
-                    public boolean onItemLongClick(ProviderBean item) {
+                    public boolean onItemLongClick(ProviderModel item, View view) {
                         return false;
                     }
                 });
-                binding.fPackageInfoRv.setAdapter(providerRVAdapter);
+                binding.fPackageInfoRv.setAdapter(adapter);
                 break;
-            case Receiver:
-                ReceiverRVAdapter receiverRVAdapter = new ReceiverRVAdapter(new ArrayList<>());
-                receiverRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+            }
+            case Receiver: {
+                ReceiverListAdapter adapter = new ReceiverListAdapter(new ArrayList<>());
+                adapter.setOnItemClickListener(new OnItemClickListener<>() {
                     @Override
-                    public void onItemClick(ReceiverBean item) {
+                    public void onItemClick(ReceiverModel item, View view) {
                         viewModel.showReceiverDetailDialog(requireActivity(), item);
                     }
 
                     @Override
-                    public boolean onItemLongClick(ReceiverBean item) {
+                    public boolean onItemLongClick(ReceiverModel item, View view) {
                         return false;
                     }
                 });
-                binding.fPackageInfoRv.setAdapter(receiverRVAdapter);
+                binding.fPackageInfoRv.setAdapter(adapter);
                 break;
+            }
         }
         binding.fPackageInfoTv.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
         binding.fPackageInfoSv.setOnSearchClickListener(v -> binding.fPackageInfoTv.setVisibility(View.GONE));
@@ -175,19 +181,19 @@ public class PackageInfoFragment extends Fragment {
                 switch (packageInfoScope) {
                     case PermissionDefined:
                     case PermissionRequested:
-                        PermissionRVAdapter orvAdapter = (PermissionRVAdapter) binding.fPackageInfoRv.getAdapter();
+                        PermissionListAdapter orvAdapter = (PermissionListAdapter) binding.fPackageInfoRv.getAdapter();
                         if (orvAdapter != null) {
                             orvAdapter.getFilter().filter(newText);
                         }
                         break;
                     case Activity:
-                        ActivityRVAdapter arvAdapter = (ActivityRVAdapter) binding.fPackageInfoRv.getAdapter();
+                        ActivityListAdapter arvAdapter = (ActivityListAdapter) binding.fPackageInfoRv.getAdapter();
                         if (arvAdapter != null) {
                             arvAdapter.getFilter().filter(newText);
                         }
                         break;
                     case Receiver:
-                        ReceiverRVAdapter rrvAdapter = (ReceiverRVAdapter) binding.fPackageInfoRv.getAdapter();
+                        ReceiverListAdapter rrvAdapter = (ReceiverListAdapter) binding.fPackageInfoRv.getAdapter();
                         if (rrvAdapter != null) {
                             rrvAdapter.getFilter().filter(newText);
                         }
@@ -209,96 +215,103 @@ public class PackageInfoFragment extends Fragment {
         Log.i(TAG, "PackageInfoFragment #" + packageInfoScope.ordinal() + " onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         switch (packageInfoScope) {
-            case Overview:
-                TCVListAdapter tclAdapter = (TCVListAdapter) binding.fPackageInfoRv.getAdapter();
-                if (tclAdapter != null) {
-                    viewModel.getOverviewList().observe(getViewLifecycleOwner(), tclAdapter::setOverviewList);
+            case Overview: {
+                TCVListAdapter adapter = (TCVListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    viewModel.getOverviewList().observe(getViewLifecycleOwner(), adapter::setOverviewList);
                 }
                 break;
-            case PermissionDefined:
-                PermissionRVAdapter prvAdapter1 = (PermissionRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (prvAdapter1 != null) {
-                    List<PermissionBean> curList = viewModel.getDefinedPermissionBeanList().getValue();
+            }
+            case PermissionDefined: {
+                PermissionListAdapter adapter = (PermissionListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<PermissionModel> curList = viewModel.getDefinedPermissionBeanList().getValue();
                     if (curList != null) {
-                        prvAdapter1.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getDefinedPermissionBeanList().observe(getViewLifecycleOwner(), list -> {
-                        prvAdapter1.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
-            case PermissionRequested:
-                PermissionRVAdapter prvAdapter2 = (PermissionRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (prvAdapter2 != null) {
-                    List<PermissionBean> curList = viewModel.getRequestedPermissionBeanList().getValue();
+            }
+            case PermissionRequested: {
+                PermissionListAdapter adapter = (PermissionListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<PermissionModel> curList = viewModel.getRequestedPermissionBeanList().getValue();
                     if (curList != null) {
-                        prvAdapter2.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getRequestedPermissionBeanList().observe(getViewLifecycleOwner(), list -> {
-                        prvAdapter2.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
-            case Activity:
-                ActivityRVAdapter arvAdapter = (ActivityRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (arvAdapter != null) {
-                    List<ActivityBean> curList = viewModel.getActivityBeanList().getValue();
+            }
+            case Activity: {
+                ActivityListAdapter adapter = (ActivityListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<ActivityModel> curList = viewModel.getActivityBeanList().getValue();
                     if (curList != null) {
-                        arvAdapter.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getActivityBeanList().observe(getViewLifecycleOwner(), list -> {
-                        arvAdapter.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
-            case Service:
-                ServiceRVAdapter srvAdapter = (ServiceRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (srvAdapter != null) {
-                    List<ServiceBean> curList = viewModel.getServiceBeanList().getValue();
+            }
+            case Service: {
+                ServiceListAdapter adapter = (ServiceListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<ServiceModel> curList = viewModel.getServiceBeanList().getValue();
                     if (curList != null) {
-                        srvAdapter.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getServiceBeanList().observe(getViewLifecycleOwner(), list -> {
-                        srvAdapter.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
-            case Provider:
-                ProviderRVAdapter prvAdapter3 = (ProviderRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (prvAdapter3 != null) {
-                    List<ProviderBean> curList = viewModel.getProviderBeanList().getValue();
+            }
+            case Provider: {
+                ProviderListAdapter adapter = (ProviderListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<ProviderModel> curList = viewModel.getProviderBeanList().getValue();
                     if (curList != null) {
-                        prvAdapter3.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getProviderBeanList().observe(getViewLifecycleOwner(), list -> {
-                        prvAdapter3.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
-            case Receiver:
-                ReceiverRVAdapter rrvAdapter = (ReceiverRVAdapter) binding.fPackageInfoRv.getAdapter();
-                if (rrvAdapter != null) {
-                    List<ReceiverBean> curList = viewModel.getReceiverBeanList().getValue();
+            }
+            case Receiver: {
+                ReceiverListAdapter adapter = (ReceiverListAdapter) binding.fPackageInfoRv.getAdapter();
+                if (adapter != null) {
+                    List<ReceiverModel> curList = viewModel.getReceiverBeanList().getValue();
                     if (curList != null) {
-                        rrvAdapter.setList(curList);
+                        adapter.setList(curList);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, curList.size()));
                     }
                     viewModel.getReceiverBeanList().observe(getViewLifecycleOwner(), list -> {
-                        rrvAdapter.setList(list);
+                        adapter.setList(list);
                         binding.fPackageInfoTv.setText(getString(R.string.num_items, list.size()));
                     });
                 }
                 break;
+            }
         }
     }
 

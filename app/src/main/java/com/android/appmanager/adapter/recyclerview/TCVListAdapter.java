@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.appmanager.R;
-import com.android.appmanager.bean.item.TCItem;
+import com.android.appmanager.data.model.item.TCItem;
 
 import java.util.ArrayList;
 import java.util.List;

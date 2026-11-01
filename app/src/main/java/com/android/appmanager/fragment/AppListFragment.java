@@ -16,24 +16,24 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.android.appmanager.R;
-import com.android.appmanager.activity.AppInfo;
-import com.android.appmanager.adapter.recyclerview.AppRVAdapter;
-import com.android.appmanager.adapter.recyclerview.FilterableListAdapter;
-import com.android.appmanager.bean.PackageBean;
+import com.android.appmanager.ui.packageinfo.adapter.AppListAdapter;
+import com.android.appmanager.ui.packageinfo.activity.PackageInfoActivity;
+import com.android.appmanager.data.model.PackageModel;
 import com.android.appmanager.constants.Constants;
 import com.android.appmanager.databinding.FragmentAppListBinding;
-import com.android.appmanager.viewmodel.AppListViewModel;
+import com.android.appmanager.ui.recyclerview.adapter.OnItemClickListener;
+import com.android.appmanager.viewmodel.AppViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AppListFragment extends Fragment {
     private static final String TAG = "AppListFragment";
-    private static final String KEY_SCOPE = "SCOPE";
+    private static final String ARG_SCOPE = "SCOPE";
     private static final String IS_EXPANDED = "IS_EXPANDED";
     private Constants.AppScope appScope;
     private FragmentAppListBinding binding;
-    private AppListViewModel viewModel;
+    private AppViewModel viewModel;
 
     public AppListFragment() {
         // Required empty public constructor
@@ -42,7 +42,7 @@ public class AppListFragment extends Fragment {
     public static AppListFragment newInstance(Constants.AppScope appScope) {
         AppListFragment fragment = new AppListFragment();
         Bundle args = new Bundle();
-        args.putInt(KEY_SCOPE, appScope.ordinal());
+        args.putInt(ARG_SCOPE, appScope.ordinal());
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,13 +52,13 @@ public class AppListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
-            int scopeInt = args.getInt(KEY_SCOPE);
+            int scopeInt = args.getInt(ARG_SCOPE);
             if (scopeInt >= 0 && scopeInt < Constants.AppScope.values().length) {
                 appScope = Constants.AppScope.values()[scopeInt];
                 Log.i(TAG, "AppsFragment #" + appScope.ordinal() + " onCreate");
             }
         }
-        viewModel = new ViewModelProvider(this).get(AppListViewModel.class);
+        viewModel = new ViewModelProvider(this).get(AppViewModel.class);
     }
 
     @Override
@@ -73,25 +73,25 @@ public class AppListFragment extends Fragment {
         // Initialize view
         binding = FragmentAppListBinding.inflate(inflater, container, false);
         binding.fAllAppsRv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        AppRVAdapter appRVAdapter = new AppRVAdapter(new ArrayList<>());
-        appRVAdapter.setOnItemClickListener(new FilterableListAdapter.OnItemClickListener<>() {
+        AppListAdapter appListAdapter = new AppListAdapter(new ArrayList<>());
+        appListAdapter.setOnItemClickListener(new OnItemClickListener<>() {
             @Override
-            public void onItemClick(PackageBean item) {
+            public void onItemClick(PackageModel item, View view) {
                 if (item != null) {
-                    Intent intent = new Intent(requireActivity(), AppInfo.class);
+                    Intent intent = new Intent(requireActivity(), PackageInfoActivity.class);
                     intent.putExtra("packageInfo", item.getPackageInfo());
                     startActivity(intent);
                 } else {
-                    Toast.makeText(requireContext(), R.string.cannot_find_package, Toast.LENGTH_SHORT);
+                    Toast.makeText(requireContext(), R.string.cannot_find_package, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public boolean onItemLongClick(PackageBean item) {
+            public boolean onItemLongClick(PackageModel item, View view) {
                 return false;
             }
         });
-        binding.fAllAppsRv.setAdapter(appRVAdapter);
+        binding.fAllAppsRv.setAdapter(appListAdapter);
         binding.fAllAppsTv.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
         binding.fAllAppsSv.setOnSearchClickListener(v -> binding.fAllAppsTv.setVisibility(View.GONE));
         binding.fAllAppsSv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -102,9 +102,9 @@ public class AppListFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                AppRVAdapter appRVAdapter = (AppRVAdapter) binding.fAllAppsRv.getAdapter();
-                if (appRVAdapter != null) {
-                    appRVAdapter.getFilter().filter(newText);
+                AppListAdapter appListAdapter = (AppListAdapter) binding.fAllAppsRv.getAdapter();
+                if (appListAdapter != null) {
+                    appListAdapter.getFilter().filter(newText);
                 }
                 return true;
             }
@@ -120,45 +120,44 @@ public class AppListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Log.i(TAG, "AppsFragment #" + appScope.ordinal() + " onViewCreated");
         super.onViewCreated(view, savedInstanceState);
-        AppRVAdapter appRVAdapter = (AppRVAdapter) binding.fAllAppsRv.getAdapter();
-        if (appRVAdapter != null) {
+        AppListAdapter appListAdapter = (AppListAdapter) binding.fAllAppsRv.getAdapter();
+        if (appListAdapter != null) {
             switch (appScope) {
                 case All:
-                    List<PackageBean> apbList = viewModel.getAllPackageBeanList().getValue();
+                    List<PackageModel> apbList = viewModel.getAllPackageBeanList().getValue();
                     if (apbList != null) {
-                        appRVAdapter.setList(apbList);
+                        appListAdapter.setList(apbList);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, apbList.size()));
                     }
                     viewModel.getAllPackageBeanList().observe(getViewLifecycleOwner(), list -> {
                         Log.i(TAG, "AllAppRVAdapter observed list change. Size of new list: " + list.size());
-                        appRVAdapter.setList(list);
+                        appListAdapter.setList(list);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, list.size()));
                     });
                     break;
                 case System:
-                    List<PackageBean> spbList = viewModel.getSystemPackageBeanList().getValue();
+                    List<PackageModel> spbList = viewModel.getSystemPackageBeanList().getValue();
                     if (spbList != null) {
-                        appRVAdapter.setList(spbList);
+                        appListAdapter.setList(spbList);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, spbList.size()));
                     }
                     viewModel.getSystemPackageBeanList().observe(getViewLifecycleOwner(), list -> {
-                        appRVAdapter.setList(list);
+                        appListAdapter.setList(list);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, list.size()));
                     });
                     break;
                 case User:
-                    List<PackageBean> upbList = viewModel.getUserPackageBeanList().getValue();
+                    List<PackageModel> upbList = viewModel.getUserPackageBeanList().getValue();
                     if (upbList != null) {
-                        appRVAdapter.setList(upbList);
+                        appListAdapter.setList(upbList);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, upbList.size()));
                     }
                     viewModel.getUserPackageBeanList().observe(getViewLifecycleOwner(), list -> {
-                        appRVAdapter.setList(list);
+                        appListAdapter.setList(list);
                         binding.fAllAppsTv.setText(getString(R.string.num_items, list.size()));
                     });
                     break;
             }
-
         }
     }
 

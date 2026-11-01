@@ -14,10 +14,10 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.android.appmanager.bean.permission.PermissionSorted;
+import com.android.appmanager.data.model.permission.PermissionSorted;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class PackageUtils {
                 return pm.getPackageInfo(packageName, 0);
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Failed to get packageInfo of package " + packageName + ".\nPackageName not found.", e);
+            Log.e(TAG, "Cannot find package " + packageName + ".", e);
         }
         return null;
     }
@@ -194,12 +194,11 @@ public class PackageUtils {
         return configurationInfoList;
     }
 
-    public static void generateAPK(Context context, String packageName, String destDir, int strategy) throws FileNotFoundException {
+    public static void generateAPK(Context context, String packageName, String destDir, FileUtils.ConflictStrategy strategy) throws IOException {
         PackageManager pm = context.getPackageManager();
         String sourceDir;
         try {
             sourceDir = pm.getApplicationInfo(packageName, 0).sourceDir;
-
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -210,7 +209,7 @@ public class PackageUtils {
         }
     }
 
-    public static void generateAPKS(Context context, String packageName, String destDir, int strategy) {
+    public static void generateAPKS(Context context, String packageName, String destDir, FileUtils.ConflictStrategy strategy) {
         PackageManager pm = context.getPackageManager();
         String zipName;
         String sourceDir;
